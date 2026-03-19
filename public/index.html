@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>SnakeTV Online</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Multiplayer online para navegador de TV</p>
+          <h1>SnakeTV Online</h1>
+          <p class="lead">
+            Escolha o nome, selecione a cor da cobrinha e entre em uma sala. Quando a rodada comecar, a tela entra no modo focado para TV.
+          </p>
+        </div>
+
+        <div class="status-card">
+          <span id="connectionBadge" class="badge badge-offline">Offline</span>
+          <p id="statusText" class="status-copy">Conectando ao servidor...</p>
+          <button id="leaveButton" class="secondary-button" type="button">Sair da sala</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel panel-left">
+          <div id="homePanel" class="stack">
+            <div class="card setup-card">
+              <p class="section-label">Entrada</p>
+              <h2>Preparar jogador</h2>
+
+              <div class="setup-grid">
+                <label class="field">
+                  <span>Seu nome</span>
+                  <input id="nameInput" type="text" maxlength="18" placeholder="Ex: Gabriel">
+                </label>
+
+                <div class="field color-field">
+                  <span>Cor da cobrinha</span>
+                  <div id="colorPicker" class="color-picker" role="radiogroup" aria-label="Escolha a cor da cobrinha"></div>
+                </div>
+              </div>
+
+              <div class="lobby-actions">
+                <button id="createRoomButton" class="primary-button wide-button" type="button">Criar sala</button>
+
+                <label class="field compact-field">
+                  <span>Codigo da sala</span>
+                  <input id="roomCodeInput" type="text" maxlength="4" placeholder="ABCD">
+                </label>
+
+                <button id="joinRoomButton" class="primary-button alt wide-button" type="button">Entrar</button>
+                <button id="helpButton" class="secondary-button wide-button" type="button">Como funciona</button>
+              </div>
+            </div>
+
+            <div id="roomDirectoryCard" class="card room-directory-card room-directory-card-compact">
+              <div class="split-row">
+                <div>
+                  <p class="section-label">Salas abertas</p>
+                  <h2>Salas criadas</h2>
+                </div>
+                <span id="roomDirectoryCount" class="section-label">0</span>
+              </div>
+
+              <ul id="roomDirectoryList" class="room-directory-list"></ul>
+            </div>
+          </div>
+
+          <div id="roomPanel" class="stack hidden">
+            <div class="card highlight-card">
+              <div class="split-row">
+                <div>
+                  <p class="section-label">Sala</p>
+                  <h2 id="roomCodeText">----</h2>
+                </div>
+                <button id="copyLinkButton" class="secondary-button" type="button">Copiar link</button>
+              </div>
+
+              <p id="shareLinkText" class="share-link"></p>
+
+              <div class="button-row">
+                <button id="startGameButton" class="primary-button" type="button">Iniciar rodada</button>
+                <button id="roomLeaveButton" class="secondary-button hidden" type="button">Sair da sala</button>
+                <button id="roomHelpButton" class="secondary-button" type="button">Como funciona</button>
+                <button id="restartGameButton" class="secondary-button hidden" type="button">Jogar de novo</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="split-row">
+                <h2>Jogadores</h2>
+                <span id="playerCountText" class="section-label">0/4</span>
+              </div>
+              <ul id="playerList" class="player-list"></ul>
+            </div>
+
+            <div id="rankingCard" class="card ranking-card">
+              <div class="split-row">
+                <div>
+                  <p class="section-label">Ranking global</p>
+                  <h2>Top 10 semanal</h2>
+                </div>
+                <span id="rankingResetText" class="section-label">7 dias</span>
+              </div>
+
+              <ol id="rankingList" class="ranking-list"></ol>
+              <p id="rankingSelfText" class="ranking-self hidden"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel-right">
+          <div class="game-card">
+            <div class="game-header">
+              <div>
+                <p class="section-label">Arena</p>
+                <h2 id="gameTitle">Esperando sala</h2>
+              </div>
+              <p id="gameSubtitle" class="game-subtitle">Crie ou entre em uma sala para comecar.</p>
+            </div>
+
+            <div id="gameStage" class="game-stage">
+              <div class="tv-hud">
+                <div class="hud-group">
+                  <span id="hudRoomPill" class="hud-pill">Sala ----</span>
+                  <span id="hudStatusPill" class="hud-pill">Aguardando partida</span>
+                  <span id="hudTimerPill" class="hud-pill hidden">03:00</span>
+                  <span id="hudRulePill" class="hud-pill hud-rule-pill hidden">Vence Quem Nao Morrer Ou Pegar Mais ESFERAS !</span>
+                </div>
+                <button id="focusLeaveButton" class="hud-button hidden" type="button">Sair</button>
+              </div>
+
+              <canvas id="gameCanvas" width="640" height="640"></canvas>
+
+              <div id="mobileControls" class="mobile-controls hidden" aria-label="Controles de toque">
+                <div class="mobile-dpad">
+                  <button class="mobile-control mobile-up" type="button" data-direction="up" aria-label="Cima">▲</button>
+                  <button class="mobile-control mobile-left" type="button" data-direction="left" aria-label="Esquerda">◀</button>
+                  <button class="mobile-control mobile-right" type="button" data-direction="right" aria-label="Direita">▶</button>
+                  <button class="mobile-control mobile-down" type="button" data-direction="down" aria-label="Baixo">▼</button>
+                </div>
+
+                <button id="mobileShootButton" class="mobile-shoot" type="button" aria-label="Atirar">Atirar</button>
+              </div>
+
+              <div id="scoreStrip" class="score-strip"></div>
+
+              <div id="gameOverlay" class="game-overlay">
+                <div class="overlay-card">
+                  <p id="overlayLabel" class="section-label">SnakeTV</p>
+                  <p id="overlayCountdown" class="overlay-countdown hidden">10</p>
+                  <h3 id="overlayTitle">Crie uma sala</h3>
+                  <p id="overlayText">O jogo vai aparecer aqui assim que voce entrar em uma partida.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="helpRulesTemplate">
+      <li>O host inicia a rodada e todos veem uma contagem de 10 segundos.</li>
+      <li>Durante a partida, o foco fica totalmente na arena.</li>
+      <li>Use as setinhas do controle da TV, do teclado, ou os botoes de toque no celular para jogar.</li>
+      <li>Cada rodada dura 3 minutos. Vence quem nao morrer ou pegar mais esferas quando o tempo acabar.</li>
+      <li>Use o OK do controle, o clique do mouse, ou o botao Atirar no celular para lancar uma bolinha quando a cobra tiver mais de 3 blocos.</li>
+      <li>Se o disparo acertar o corpo de outra cobra depois dos 3 blocos protegidos atras da cabeca, a cobra corta no meio e a parte cortada vira esferas.</li>
+      <li>A bolinha cuspida fica azul por 5 segundos e da turbo por 3 segundos para quem comer.</li>
+      <li>A cada 5 bolinhas criadas, uma aparece azul, e cada jogador pode cuspir no maximo 3 bolinhas a cada 7 segundos.</li>
+    </template>
+
+    <div id="helpModal" class="help-modal hidden" aria-hidden="true">
+      <div class="help-modal-backdrop" data-help-close="true"></div>
+
+      <div class="help-modal-card" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+        <div class="split-row">
+          <div>
+            <p class="section-label">Guia rapido</p>
+            <h2 id="helpModalTitle">Como funciona o jogo</h2>
+          </div>
+          <button id="closeHelpButton" class="secondary-button" type="button">Fechar</button>
+        </div>
+
+        <ul id="helpRulesList" class="rules help-rules"></ul>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

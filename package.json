@@ -1,0 +1,12 @@
+{
+  "name": "snaketv-online",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Online multiplayer snake built for browser-based TV controls.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
