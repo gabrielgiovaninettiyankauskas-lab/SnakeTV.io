@@ -6,7 +6,6 @@ const http = require("http");
 const path = require("path");
 
 const PORT = Number(process.env.PORT || 3000);
-const PUBLIC_DIR = path.join(__dirname, "public");
 const RANKING_FILE = path.join(__dirname, "global-ranking.json");
 const GRID_SIZE = 38;
 const TICK_MS = 180;
@@ -67,6 +66,16 @@ const MIME_TYPES = {
   ".png": "image/png",
   ".svg": "image/svg+xml; charset=utf-8"
 };
+const STATIC_FILES = new Map([
+  ["/", path.join(__dirname, "index.html")],
+  ["/index.html", path.join(__dirname, "index.html")],
+  ["/favicon.svg", path.join(__dirname, "favicon.svg")],
+  ["/favicon.ico", path.join(__dirname, "favicon.svg")],
+  ["/style.css", path.join(__dirname, "style.css")],
+  ["/script.js", path.join(__dirname, "script.js")],
+  ["/styles.css", path.join(__dirname, "style.css")],
+  ["/app.js", path.join(__dirname, "script.js")]
+]);
 
 const clients = new Set();
 const rooms = new Map();
@@ -100,15 +109,11 @@ function serveStatic(request, response) {
     return;
   }
 
-  if (pathname === "/") {
-    pathname = "/index.html";
-  }
+  const filePath = STATIC_FILES.get(pathname);
 
-  const filePath = path.resolve(PUBLIC_DIR, "." + pathname);
-
-  if (!filePath.startsWith(PUBLIC_DIR)) {
-    response.writeHead(403);
-    response.end("Forbidden");
+  if (!filePath) {
+    response.writeHead(404);
+    response.end("Not found");
     return;
   }
 
